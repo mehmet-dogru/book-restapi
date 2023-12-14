@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func UserSignUp(c fiber.Ctx) error {
+func UserSignUp(c *fiber.Ctx) error {
 	//Create a new user auth struct
 	signUp := &models.SignUp{}
 
