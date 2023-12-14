@@ -23,3 +23,20 @@ func (q *UserQueries) GetUserByID(id uuid.UUID) (models.User, error) {
 
 	return user, nil
 }
+
+func (q *UserQueries) CreateUser(u *models.User) error {
+	query := `INSERT INTO users VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+	// Send query to database.
+	_, err := q.Exec(
+		query,
+		u.ID, u.CreatedAt, u.UpdatedAt, u.Email, u.PasswordHash, u.UserStatus, u.UserRole,
+	)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
+}
