@@ -6,6 +6,7 @@ import (
 	"book-restapi/pkg/routes"
 	"book-restapi/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
