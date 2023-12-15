@@ -30,7 +30,7 @@ func UserSignUp(c *fiber.Ctx) error {
 		//Return, if some fields are not valid
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   utils.ValidationErrors(err),
+			"msg":   utils.ValidatorErrors(err),
 		})
 	}
 
@@ -66,7 +66,7 @@ func UserSignUp(c *fiber.Ctx) error {
 	if err := validate.Struct(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   utils.ValidationErrors(err),
+			"msg":   utils.ValidatorErrors(err),
 		})
 	}
 
