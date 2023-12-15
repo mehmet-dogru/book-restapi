@@ -4,6 +4,7 @@ import (
 	"book-restapi/app/models"
 	"book-restapi/pkg/utils"
 	"book-restapi/platform/database"
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"time"
@@ -83,5 +84,71 @@ func UserSignUp(c *fiber.Ctx) error {
 		"error": false,
 		"msg":   nil,
 		"user":  user,
+	})
+}
+
+func UserSignIn(c *fiber.Ctx) error {
+	signIn := &models.SignIn{}
+
+	err := json.Unmarshal(c.Body(), &signIn)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err,
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	foundedUser, err := db.GetUserByEmail(signIn.Email)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   "user with the given email is not found",
+		})
+	}
+
+	compareUserPassword := utils.ComparePasswords(foundedUser.PasswordHash, signIn.Password)
+	if !compareUserPassword {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   "wrong user email address or password",
+		})
+	}
+
+	// Get role credentials from founded user.
+	credentials, err := utils.GetCredentialsByRole(foundedUser.UserRole)
+	if err != nil {
+		// Return status 400 and error message.
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Generate a new pair of access and refresh tokens.
+	tokens, err := utils.GenerateNewTokens(foundedUser.ID.String(), credentials)
+	if err != nil {
+		// Return status 500 and token generation error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"error": false,
+		"msg":   nil,
+		"tokens": fiber.Map{
+			"access":  tokens.Access,
+			"refresh": tokens.Refresh,
+		},
 	})
 }

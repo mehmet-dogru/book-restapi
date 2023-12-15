@@ -40,3 +40,16 @@ func (q *UserQueries) CreateUser(u *models.User) error {
 	// This query returns nothing.
 	return nil
 }
+
+func (q *UserQueries) GetUserByEmail(email string) (models.User, error) {
+	user := models.User{}
+
+	query := `SELECT * FROM users WHERE email = $1`
+
+	err := q.Get(&user, query, email)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}

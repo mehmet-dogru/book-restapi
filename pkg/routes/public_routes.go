@@ -9,4 +9,5 @@ func PublicRoutes(a *fiber.App) {
 	route := a.Group("/api/v1")
 
 	route.Post("/user/signup", controllers.UserSignUp)
+	route.Post("/user/signin", controllers.UserSignIn)
 }
