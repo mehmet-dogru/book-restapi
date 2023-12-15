@@ -8,7 +8,7 @@ import (
 // StartServer func for a starting a simple server
 func StartServer(a *fiber.App) {
 	//Build fiber connection url
-	fiberConnURL, _ := ConnectionUrlBuilder("fiber")
+	fiberConnURL, _ := ConnectionURLBuilder("fiber")
 
 	//Run server
 	err := a.Listen(fiberConnURL)
