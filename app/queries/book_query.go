@@ -2,6 +2,7 @@ package queries
 
 import (
 	"book-restapi/app/models"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -25,4 +26,78 @@ func (q *BookQueries) GetBooks() ([]models.Book, error) {
 
 	//Return query result
 	return books, nil
+}
+
+func (q *BookQueries) GetBookByAuthor(author string) ([]models.Book, error) {
+	books := []models.Book{}
+
+	query := `SELECT * FROM books WHERE author = $1`
+
+	err := q.Get(&books, query, author)
+	if err != nil {
+		return books, err
+	}
+
+	return books, nil
+}
+
+func (q *BookQueries) GetBook(id uuid.UUID) (models.Book, error) {
+	book := models.Book{}
+
+	query := `SELECT * FROM books WHERE id = $1`
+
+	err := q.Get(&book, query, id)
+	if err != nil {
+		return book, err
+	}
+
+	return book, nil
+}
+
+// CreateBook method for creating book by given Book object.
+func (q *BookQueries) CreateBook(b *models.Book) error {
+	// Define query string.
+	query := `INSERT INTO books VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+
+	// Send query to database.
+	_, err := q.Exec(query, b.ID, b.CreatedAt, b.UpdatedAt, b.UserID, b.Title, b.Author, b.BookStatus, b.BookAttrs)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
+}
+
+// UpdateBook method for updating book by given Book object.
+func (q *BookQueries) UpdateBook(id uuid.UUID, b *models.Book) error {
+	// Define query string.
+	query := `UPDATE books SET updated_at = $2, title = $3, author = $4, book_status = $5, book_attrs = $6 WHERE id = $1`
+
+	// Send query to database.
+	_, err := q.Exec(query, id, b.UpdatedAt, b.Title, b.Author, b.BookStatus, b.BookAttrs)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
+}
+
+// DeleteBook method for delete book by given ID.
+func (q *BookQueries) DeleteBook(id uuid.UUID) error {
+	// Define query string.
+	query := `DELETE FROM books WHERE id = $1`
+
+	// Send query to database.
+	_, err := q.Exec(query, id)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
 }
