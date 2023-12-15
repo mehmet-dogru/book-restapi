@@ -21,6 +21,7 @@ func main() {
 
 	//Routes
 	routes.PublicRoutes(app)
+	routes.PrivateRoutes(app)
 
 	//Start server
 	utils.StartServer(app)
