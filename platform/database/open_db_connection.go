@@ -11,6 +11,10 @@ type Queries struct {
 	*queries.BookQueries
 }
 
+func NewDbConn(bookQueries *queries.BookQueries) *Queries {
+	return &Queries{nil, bookQueries}
+}
+
 func OpenDBConnection() (*Queries, error) {
 	//Define database connection variables
 	var (

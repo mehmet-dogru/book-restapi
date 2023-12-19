@@ -10,7 +10,15 @@ import (
 	"time"
 )
 
-func GetBooks(c *fiber.Ctx) error {
+type WW struct {
+	db *database.Queries
+}
+
+func NewBookController(db *database.Queries) *WW {
+	return &WW{db: db}
+}
+
+func (w *WW) GetBooks(c *fiber.Ctx) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -38,7 +46,7 @@ func GetBooks(c *fiber.Ctx) error {
 	})
 }
 
-func GetBook(c *fiber.Ctx) error {
+func (w *WW) GetBook(c *fiber.Ctx) error {
 	// Catch book ID from URL.
 	id, err := uuid.Parse(c.Params("id"))
 	if err != nil {
@@ -49,17 +57,17 @@ func GetBook(c *fiber.Ctx) error {
 	}
 
 	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	//db, err := database.OpenDBConnection()
+	//if err != nil {
+	//	// Return status 500 and database connection error.
+	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	//		"error": true,
+	//		"msg":   err.Error(),
+	//	})
+	//}
 
 	// Get book by ID.
-	book, err := db.GetBook(id)
+	book, err := w.db.BookQueries.GetBook(id)
 	if err != nil {
 		// Return, if book not found.
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -77,7 +85,7 @@ func GetBook(c *fiber.Ctx) error {
 	})
 }
 
-func CreateBook(c *fiber.Ctx) error {
+func (w *WW) CreateBook(c *fiber.Ctx) error {
 	// Get now time.
 	now := time.Now().Unix()
 
@@ -128,14 +136,14 @@ func CreateBook(c *fiber.Ctx) error {
 	}
 
 	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
+	//db, err := database.OpenDBConnection()
+	//if err != nil {
+	//	// Return status 500 and database connection error.
+	//	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	//		"error": true,
+	//		"msg":   err.Error(),
+	//	})
+	//}
 
 	// Create a new validator for a Book model.
 	validate := utils.NewValidator()
@@ -156,7 +164,7 @@ func CreateBook(c *fiber.Ctx) error {
 	}
 
 	// Create book by given model.
-	if err := db.CreateBook(book); err != nil {
+	if err := w.db.BookQueries.CreateBook(book); err != nil {
 		// Return status 500 and error message.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,

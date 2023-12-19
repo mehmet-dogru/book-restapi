@@ -10,6 +10,10 @@ type BookQueries struct {
 	*sqlx.DB
 }
 
+func NewBookQueries(sq *sqlx.DB) *BookQueries {
+	return &BookQueries{sq}
+}
+
 // GetBooks method for getting all books
 func (q *BookQueries) GetBooks() ([]models.Book, error) {
 	//Define book variable
